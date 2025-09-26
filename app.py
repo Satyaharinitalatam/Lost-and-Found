@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify
 import os
 from werkzeug.utils import secure_filename
 
@@ -20,10 +20,16 @@ def get_items():
 
 @app.route('/add', methods=['POST'])
 def add_item():
+    # Get all form fields
+    name = request.form.get('name')
+    roll = request.form.get('roll')
+    phone = request.form.get('phone')
+    item_name = request.form.get('item')
     description = request.form.get('description')
+
+    # Handle file upload
     file = request.files.get('image')
     filename = None
-
     if file and file.filename != '':
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
@@ -31,11 +37,16 @@ def add_item():
 
     new_item = {
         'id': len(app.config['ITEMS']) + 1,
+        'name': name,
+        'roll': roll,
+        'phone': phone,
+        'item': item_name,
         'description': description,
         'image': filename,
         'found': False,
         'Responses': []
     }
+
     app.config['ITEMS'].append(new_item)
     return jsonify({'status':'ok'})
 
@@ -63,6 +74,4 @@ def delete_item(item_id):
     return '', 200
 
 if __name__ == "__main__":
-    app.run(host = "0.0.0.0" ,debug=True)
-
-
+    app.run(host="0.0.0.0", debug=True)
